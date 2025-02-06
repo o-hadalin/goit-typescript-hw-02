@@ -1,8 +1,26 @@
-import PropTypes from 'prop-types';
 import ImageCard from '../ImageCard/ImageCard';
 import styles from './ImageGallery.module.css';
 
-const ImageGallery = ({ images, onImageClick }) => {
+interface ImageUrls {
+  small: string;
+  full: string;
+}
+
+interface Image {
+  id: string;
+  urls: ImageUrls;
+  alt_description: string | null;
+}
+
+interface ImageGalleryProps {
+  images: Image[];
+  onImageClick: (imageUrl: string, imageAlt: string) => void;
+}
+
+const ImageGallery: React.FC<ImageGalleryProps> = ({
+  images,
+  onImageClick,
+}) => {
   if (!images.length) return null;
 
   return (
@@ -12,27 +30,12 @@ const ImageGallery = ({ images, onImageClick }) => {
           <ImageCard
             src={urls.small}
             alt={alt_description || 'Image'}
-            largeImageUrl={urls.full}
             onClick={() => onImageClick(urls.full, alt_description || 'Image')}
           />
         </li>
       ))}
     </ul>
   );
-};
-
-ImageGallery.propTypes = {
-  images: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      urls: PropTypes.shape({
-        small: PropTypes.string.isRequired,
-        full: PropTypes.string.isRequired,
-      }).isRequired,
-      alt_description: PropTypes.string,
-    })
-  ).isRequired,
-  onImageClick: PropTypes.func.isRequired,
 };
 
 export default ImageGallery;

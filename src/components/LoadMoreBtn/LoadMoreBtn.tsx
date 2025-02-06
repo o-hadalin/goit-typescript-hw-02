@@ -1,7 +1,12 @@
-import PropTypes from 'prop-types';
+import React from 'react';
 import styles from './LoadMoreBtn.module.css';
 
-const LoadMoreBtn = ({ onClick, isVisible }) => {
+interface LoadMoreBtnProps {
+  onClick: () => void;
+  isVisible: boolean;
+}
+
+const LoadMoreBtn: React.FC<LoadMoreBtnProps> = ({ onClick, isVisible }) => {
   if (!isVisible) return null;
 
   return (
@@ -9,11 +14,6 @@ const LoadMoreBtn = ({ onClick, isVisible }) => {
       Load More
     </button>
   );
-};
-
-LoadMoreBtn.propTypes = {
-  onClick: PropTypes.func.isRequired,
-  isVisible: PropTypes.bool.isRequired,
 };
 
 export default LoadMoreBtn;
