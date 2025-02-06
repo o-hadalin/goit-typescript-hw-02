@@ -4,20 +4,57 @@ import ImageGallery from './components/ImageGallery/ImageGallery';
 import Loader from './components/Loader/Loader';
 import ErrorMessage from './components/ErrorMessage/ErrorMessage';
 import LoadMoreBtn from './components/LoadMoreBtn/LoadMoreBtn';
-import { fetchImages } from './http-api';
+import { fetchImages } from './api/http-api';
 import ImageModal from './components/ImageModal/ImageModal';
 import './App.css';
 
+interface Image {
+  id: string;
+  alt_description: string;
+  urls: {
+    small: string;
+    regular: string;
+    full: string;
+  };
+}
+
+interface ModalImage {
+  url: string;
+  alt: string;
+}
+
+interface UnsplashImage {
+  id: string;
+  alt_description: string;
+  urls: {
+    small: string;
+    regular: string;
+  };
+}
+
+const transformToImage = (unsplashImage: UnsplashImage): Image => ({
+  id: unsplashImage.id,
+  alt_description: unsplashImage.alt_description,
+  urls: {
+    small: unsplashImage.urls.small,
+    regular: unsplashImage.urls.regular,
+    full: unsplashImage.urls.regular,
+  },
+});
+
 const App = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [images, setImages] = useState([]);
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalImage, setModalImage] = useState({ url: '', alt: '' });
-  const [totalPages, setTotalPages] = useState(0);
-  const [noImagesFound, setNoImagesFound] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [images, setImages] = useState<Image[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [modalImage, setModalImage] = useState<ModalImage>({
+    url: '',
+    alt: '',
+  });
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [noImagesFound, setNoImagesFound] = useState<boolean>(false);
 
   useEffect(() => {
     if (!searchQuery) return;
@@ -32,10 +69,13 @@ const App = () => {
         if (data.results.length === 0) {
           setNoImagesFound(true);
         }
-        setImages(prevImages => [...prevImages, ...data.results]);
+        setImages(prevImages => [
+          ...prevImages,
+          ...data.results.map(transformToImage),
+        ]);
         setTotalPages(data.total_pages);
       } catch (err) {
-        setError(err.message);
+        setError((err as Error).message);
       } finally {
         setIsLoading(false);
       }
@@ -46,13 +86,13 @@ const App = () => {
 
   useEffect(() => {
     if (isModalOpen) {
-      document.getElementById('root').setAttribute('inert', 'true');
+      document.getElementById('root')?.setAttribute('inert', 'true');
     } else {
-      document.getElementById('root').removeAttribute('inert');
+      document.getElementById('root')?.removeAttribute('inert');
     }
   }, [isModalOpen]);
 
-  const handleSearchSubmit = query => {
+  const handleSearchSubmit = (query: string) => {
     setSearchQuery(query);
     setImages([]);
     setPage(1);
@@ -70,7 +110,7 @@ const App = () => {
     }, 300);
   };
 
-  const openModal = (imageUrl, imageAlt) => {
+  const openModal = (imageUrl: string, imageAlt: string) => {
     setModalImage({ url: imageUrl, alt: imageAlt });
     setIsModalOpen(true);
   };
